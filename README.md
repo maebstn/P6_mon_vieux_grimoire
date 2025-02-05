@@ -19,10 +19,10 @@
 - Dans l'onglet `Network Access`, cliquez sur Add IP Adress et autorisez l'accès depuis n'importe où (Add access from Anywhere).
 
 - Ensuite, créez un fichier .env dans le dossier et ajoutez :
-  MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<databaseName>?retryWrites=true&w=majority&appName=Cluster
+  `MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<databaseName>?retryWrites=true&w=majority&appName=Cluster`
 
 - Remplacez <username> et <password>par vos identifiants et <databaseName> par le nom de votre base.
-  ⚠️ Ne partagez jamais votre fichier .env et ajoutez-le à votre fichier .gitignore préalablement créé!
+  ⚠️ Ne partagez jamais votre fichier .env et vérifiez qu'il figure bien dans le fichier .gitignore!
 
 - Lancez ensuite le serveur dans le terminal avec la commande 'nodemon server'.
 
