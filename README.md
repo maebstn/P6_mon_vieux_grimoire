@@ -18,11 +18,9 @@
 - Créez un utilisateur avec un mot de passe sécurisé en allant dans `Database Access`. Conservez-les pour la suite.
 - Dans l'onglet `Network Access`, cliquez sur Add IP Adress et autorisez l'accès depuis n'importe où (Add access from Anywhere).
 
-- Ensuite, créez un fichier .env dans le dossier et ajoutez :
+- Ensuite, créez un fichier .env dans le dossier et ajoutez une variable d'environnement appelée MONGO_URI. Elle sera égale à la chaîne de connexion fournie dans l'onglet 'Connect' de votre Cluster. Voici un exemple :
   `MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<databaseName>?retryWrites=true&w=majority&appName=Cluster`
-
-- Remplacez <username> et <password>par vos identifiants et <databaseName> par le nom de votre base.
-  ⚠️ Ne partagez jamais votre fichier .env et vérifiez qu'il figure bien dans le fichier .gitignore!
+  ⚠️ N'oubliez pas de remplacer <username> et <password> par vos identifiants mais également de ne jamais partager votre fichier .env.
 
 - Lancez ensuite le serveur dans le terminal avec la commande 'nodemon server'.
 
