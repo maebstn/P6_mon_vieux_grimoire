@@ -1,19 +1,24 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const path = require('path');
+// Importation des modules nécessaires
+const express = require('express'); // Framework pour créer un serveur Node.js
+const mongoose = require('mongoose'); // Outil pour interagir avec MongoDB
+const path = require('path'); // Module pour gérer les chemins de fichiers
+require('dotenv').config(); //Chargement du fichier de configuration
 
-const app = express();
-const bookRoutes = require('./routes/book');
-const userRoutes = require('./routes/user');
+const app = express(); // Création de l'application Express
+// Importation des routes
+const bookRoutes = require('./routes/book'); //Pour les livres
+const userRoutes = require('./routes/user'); //Pour l'authentification utilisateur
 
+// Connexion à MongoDB avec Mongoose
 mongoose
-	.connect(
-		'mongodb+srv://maebstn:xNhQISEzJporJW5C@cluster0.grjvc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
-		{ useNewUrlParser: true, useUnifiedTopology: true }
-	)
+	.connect(process.env.MONGO_URI, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+	})
 	.then(() => console.log('Connexion à MongoDB réussie !'))
 	.catch(() => console.log('Connexion à MongoDB échouée !'));
 
+// Middleware pour gérer les erreurs CORS (Cross-Origin Resource Sharing)
 app.use((req, res, next) => {
 	res.setHeader('Access-Control-Allow-Origin', '*');
 	res.setHeader(
@@ -27,10 +32,13 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Middleware permettant de traiter les requêtes contenant du JSON
 app.use(express.json());
 
-app.use('/api/books', bookRoutes);
-app.use('/api/auth', userRoutes);
-app.use('/images', express.static(path.join(__dirname, 'images')));
+// Définition des routes API
+app.use('/api/books', bookRoutes); //Pour gérer les livres
+app.use('/api/auth', userRoutes); // Pour gérer les utilisateurs
+app.use('/images', express.static(path.join(__dirname, 'images'))); //Pour les fichiers statiques (images uploadées)
 
+// Exportation de l'application pour pouvoir l'utiliser dans server.js
 module.exports = app;

@@ -126,7 +126,7 @@ exports.rateBook = async (req, res, next) => {
 
 		// Recalcul de la moyenne
 		const totalRatings = book.ratings.reduce((sum, r) => sum + r.grade, 0);
-		book.averageRating = totalRatings / book.ratings.length;
+		book.averageRating = (totalRatings / book.ratings.length).toFixed(1);
 
 		// Sauvegarde des modifications
 		await book.save();
