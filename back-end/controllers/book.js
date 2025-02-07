@@ -30,6 +30,7 @@ exports.createBook = (req, res, next) => {
 	// Supprime l'ID et l'userID envoyés par le front-end
 	delete bookObject._id;
 	delete bookObject._userID;
+
 	// Crée une nouvelle instance de Book
 	const book = new Book({
 		//Création d'une copie du contenu de book
