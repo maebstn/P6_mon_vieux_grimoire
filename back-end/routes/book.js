@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
+const bookCtrl = require('../controllers/book');
 const auth = require('../middleware/auth');
 const { upload, resizeImage } = require('../middleware/upload');
 const validateBook = require('../middleware/validate-book');
-const bookCtrl = require('../controllers/book');
 
 router.get('/', bookCtrl.getAllBooks);
 router.get('/bestrating', bookCtrl.getBestRating);
