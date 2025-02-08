@@ -10,7 +10,7 @@
 ### Back-end
 
 - Ouvrez le dossier back-end avec la commande `cd backend`.
-- Installez les dépendances avec la commande `npm install`.
+- Installez les dépendances avec la commande `npm install --legacy-peer-deps`.
 
 - Créez un compte MongoDB Atlas en vous rendant sur https://www.mongodb.com/atlas/database.
 - Inscrivez-vous et connectez-vous sur votre compte.
