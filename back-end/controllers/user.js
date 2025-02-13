@@ -24,34 +24,34 @@ exports.signup = (req, res, next) => {
 
 //Fonction pour la connexion d'utilisateur déjà inscrits
 exports.login = (req, res, next) => {
-	User.findOne({ email: req.body.email }) // Recherche un utilisateur dans la base de données avec l'email fourni
+	//Recherche utilisateur par email
+	User.findOne({ email: req.body.email })
 		.then((user) => {
-			// Si l'utilisateur est trouvé, exécute cette fonction
+			//Si email non trouvé
 			if (!user) {
-				// Si aucun utilisateur n'est trouvé
-				res
+				return res
 					.status(401)
-					.json({ message: 'Paire login/mot de passe incorrecte' });
+					.json({ message: 'Identifiant et/ou mot de passe incorrects' });
 			}
-			bcrypt // Utilisation de bcrypt pour comparer le mot de passe fourni avec le mot de passe haché de l'utilisateur
+			//Comparaison mot de passe entre mot de passe fourni et le mot de passe haché
+			bcrypt
 				.compare(req.body.password, user.password)
 				.then((valid) => {
+					//Si mot de passe incorrecte
 					if (!valid) {
-						// Si le mot de passe est incorrect
-						return res // Renvoie une réponse 401 avec un message d'erreur
+						return res
 							.status(401)
-							.json({ message: 'Paire login/mot de passe incorrecte' });
+							.json({ message: 'Identifiant et/ou mot de passe incorrects' });
 					}
-					return res.status(200).json({
-						// Si le mot de passe est correct, renvoie une réponse 200 avec l'ID de l'utilisateur et un token JWT
-						userId: user._id, // Renvoie l'ID de l'utilisateur
+					//Si valide création et envoie du token
+					res.status(200).json({
+						userId: user._id,
 						token: jwt.sign({ userId: user._id }, 'RANDOM_TOKEN_SECRET', {
-							// Génère un token JWT contenant l'ID de l'utilisateur
 							expiresIn: '24h',
 						}),
 					});
 				})
-				.catch((error) => res.status(500).json({ error })); // Si la comparaison échoue, erreur.
+				.catch((error) => res.status(500).json({ error }));
 		})
-		.catch((error) => res.status(500).json({ error })); // Si la recherche de l'utilisateur échoue, erreur.
+		.catch((error) => res.status(500).json({ error }));
 };

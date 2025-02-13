@@ -77,7 +77,7 @@ exports.updateBook = (req, res, next) => {
 		.then((book) => {
 			if (book.userId != req.auth.userId) {
 				res
-					.status(401)
+					.status(403)
 					.json({ message: "Vous n'êtes pas autorisé à modifier le livre" });
 			} else {
 				//Mise à jour du livre
@@ -86,11 +86,11 @@ exports.updateBook = (req, res, next) => {
 					{ ...bookObject, _id: req.params.id }
 				)
 					.then(() => res.status(200).json({ message: 'Livre modifié!' }))
-					.catch((error) => res.status(401).json({ error }));
+					.catch((error) => res.status(400).json({ error }));
 			}
 		})
 		.catch((error) => {
-			res.status(400).json({ error });
+			res.status(500).json({ error });
 		});
 };
 

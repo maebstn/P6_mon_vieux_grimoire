@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 	next();
 });
 
-// Middleware permettant de traiter les requêtes contenant du JSON
+// Middleware pour lire le JSON
 app.use(express.json());
 
 // Définition des routes API

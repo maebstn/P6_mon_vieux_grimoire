@@ -19,14 +19,15 @@ const storage = multer.diskStorage({
 	},
 	// Fonction pour définir le nom du fichier téléchargé
 	filename: (req, file, callback) => {
-		const name = file.originalname.split(' ').join('_');
-		const extension = MIME_TYPES[file.mimetype];
-		callback(null, name + Date.now() + '.' + extension);
+		const name = file.originalname.split(' ').join('_'); //Remplace les espaces par des _
+		const extension = MIME_TYPES[file.mimetype]; //Associe le type MIME du fichier à l'extension correspondante
+		callback(null, name + Date.now() + '.' + extension); //Définit le nom avec Date.now en timeStamp
 	},
 });
 
 // Fonction middleware pour redimensionner et convertir l'image
 const resizeImage = async (req, res, next) => {
+	//Vérification de l'existance du fichier
 	if (!req.file) {
 		return next();
 	}
