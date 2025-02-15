@@ -1,5 +1,5 @@
 const validateBook = (req, res, next) => {
-	const book = req.body; // les données envoyées dans le corps de la requête
+	const book = JSON.parse(req.body.book); // Ici on parse la chaîne JSON en objet
 
 	const isValidTitle = /^[A-Za-zÀ-ÿ0-9\s']+$/.test(book.title);
 	const isValidAuthor = /^[A-Za-zÀ-ÿ\s']+$/.test(book.author);
