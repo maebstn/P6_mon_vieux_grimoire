@@ -5,3 +5,5 @@
 
 # Environnements
 .env
+
+*.DS_Store
