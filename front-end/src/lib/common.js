@@ -115,41 +115,59 @@ export async function rateBook(id, userId, rating) {
 
 export async function addBook(data) {
   const userId = localStorage.getItem('userId');
+
+  // Validation basique
+  if (!data.title || !data.author || !data.year || !data.genre) {
+    return { error: true, message: 'Tous les champs sont requis' };
+  }
+
   const book = {
     userId,
     title: data.title,
     author: data.author,
-    year: data.year,
+    year: parseInt(data.year, 10),
     genre: data.genre,
-    ratings: [{
-      userId,
-      grade: data.rating ? parseInt(data.rating, 10) : 0,
-    }],
-    averageRating: parseInt(data.rating, 10),
+    ratings: data.rating
+      ? [
+          {
+            userId,
+            grade: parseInt(data.rating, 10),
+          },
+        ]
+      : [],
+    averageRating: data.rating ? parseInt(data.rating, 10) : 0,
   };
+
   const bodyFormData = new FormData();
   bodyFormData.append('book', JSON.stringify(book));
-  bodyFormData.append('image', data.file[0]);
+
+  if (data.file && data.file[0]) {
+    bodyFormData.append('image', data.file[0]);
+  }
 
   try {
-    return await axios({
+    const response = await axios({
       method: 'post',
       url: `${API_ROUTES.BOOKS}`,
       data: bodyFormData,
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
+        'Content-Type': 'multipart/form-data',
       },
     });
+    return response.data;
   } catch (err) {
-    console.error(err);
-    return { error: true, message: err.message };
+    console.error("Erreur lors de l'ajout du livre:", err);
+    return {
+      error: true,
+      message: err.response?.data?.error || err.message || "Une erreur est survenue lors de l'ajout du livre",
+      details: err.response?.data,
+    };
   }
 }
 
 export async function updateBook(data, id) {
   const userId = localStorage.getItem('userId');
-
-  let newData;
   const book = {
     userId,
     title: data.title,
@@ -157,27 +175,29 @@ export async function updateBook(data, id) {
     year: data.year,
     genre: data.genre,
   };
-  console.log(data.file[0]);
+
+  const formData = new FormData();
+  formData.append('book', JSON.stringify(book));
   if (data.file[0]) {
-    newData = new FormData();
-    newData.append('book', JSON.stringify(book));
-    newData.append('image', data.file[0]);
-  } else {
-    newData = { ...book };
+    formData.append('image', data.file[0]);
   }
 
   try {
-    const newBook = await axios({
+    const response = await axios({
       method: 'put',
       url: `${API_ROUTES.BOOKS}/${id}`,
-      data: newData,
+      data: formData,
       headers: {
+        'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${localStorage.getItem('token')}`,
       },
     });
-    return newBook;
+    return response.data;
   } catch (err) {
     console.error(err);
-    return { error: true, message: err.message };
+    return {
+      error: true,
+      message: err.response?.data?.error || err.message || 'Une erreur est survenue lors de la mise à jour du livre',
+    };
   }
 }

@@ -22,9 +22,7 @@ function BookItem({ book, size }) {
       <article>
         <img className={styles.BookImage} src={book.imageUrl} alt={`${book.title}, ${book.author} - ${book.year}`} />
         <div className={styles.BookInfo}>
-          <div className={styles.Rating}>
-            {displayStars(book.averageRating)}
-          </div>
+          <div className={styles.Rating}>{displayStars(book.averageRating)}</div>
           {title}
           <p>{book.author}</p>
           <p>{book.year}</p>
@@ -45,10 +43,12 @@ BookItem.propTypes = {
     year: PropTypes.number,
     imageUrl: PropTypes.string,
     genre: PropTypes.string,
-    ratings: PropTypes.arrayOf(PropTypes.shape({
-      userId: PropTypes.string,
-      grade: PropTypes.number,
-    })),
+    ratings: PropTypes.arrayOf(
+      PropTypes.shape({
+        userId: PropTypes.string,
+        grade: PropTypes.number,
+      }),
+    ),
     averageRating: PropTypes.number,
   }).isRequired,
 };

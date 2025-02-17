@@ -27,60 +27,63 @@ const storage = multer.diskStorage({
 
 // Fonction middleware pour redimensionner et convertir l'image
 const resizeImage = async (req, res, next) => {
-	//Vérification de l'existance du fichier
-	if (!req.file) {
-		return next();
-	}
+    //Vérification de l'existance du fichier
+    if (!req.file) {
+        return next();
+    }
 
-	// Récupération du chemin du fichier temporaire et du titre du livre
-	const { path: filePath, filename } = req.file;
-	const { title, userId } = JSON.parse(req.body.book);
+    // Récupération du chemin du fichier temporaire et du titre du livre
+    const { path: filePath, filename } = req.file;
+    const { title, userId } = JSON.parse(req.body.book);
 
-	// Génération du nom de fichier pour la nouvelle image (webp)
-	const timestamp = Date.now();
-	const withoutSpaceTitle = title.trim().split(' ').join('_');
-	const newFilename = `${withoutSpaceTitle}-${userId}-${timestamp}.webp`;
-	const outputPath = path.join('images', newFilename);
+    // Génération du nom de fichier pour la nouvelle image (webp)
+    const timestamp = Date.now();
+    const withoutSpaceTitle = title.trim().split(' ').join('_');
+    const newFilename = `${withoutSpaceTitle}-${userId}-${timestamp}.webp`;
+    const outputPath = path.join('images', newFilename);
 
-	// Si une ancienne image existe, on la supprime avant de traiter la nouvelle
-	if (req.params.id) {
-		// Récupérer l'ancienne image depuis la base de données
-		const book = await Book.findById(req.params.id);
-		if (book && book.imageUrl) {
-			const oldImagePath = book.imageUrl.split('/images/')[1];
-			try {
-				await fs.unlink(`images/${oldImagePath}`);
-			} catch (err) {
-				console.error(
-					"Erreur lors de la suppression de l'ancienne image:",
-					err
-				);
-			}
-		}
-	}
+    // Si une ancienne image existe, on la supprime avant de traiter la nouvelle
+    if (req.params.id) {
+        // Récupérer l'ancienne image depuis la base de données
+        const book = await Book.findById(req.params.id);
+        if (book && book.imageUrl) {
+            const oldImagePath = book.imageUrl.split('/images/')[1];
+            try {
+                await fs.unlink(`images/${oldImagePath}`);
+            } catch (err) {
+                console.error(
+                    "Erreur lors de la suppression de l'ancienne image:",
+                    err
+                );
+            }
+        }
+    }
 
-	// Redimensionnement et conversion de l'image avec Sharp
-	try {
-		await sharp(filePath)
-			.resize(277, 456)
-			.webp({ quality: 90 })
-			.toFile(outputPath);
+    // Redimensionnement et conversion de l'image avec Sharp
+    try {
+        await sharp(filePath)
+            .resize(277, 456)
+            .webp({ quality: 90 })
+            .toFile(outputPath);
 
-		// Suppression de l'ancienne image si elle existe
-		await fs.unlink(filePath);
+        // Suppression du fichier temporaire
+        await fs.unlink(filePath);
 
-		// Mise à jour des informations du fichier dans req.file
-		req.file.filename = newFilename;
-		req.file.path = outputPath;
-		req.file.mimetype = 'image/webp';
+        // Mise à jour des informations du fichier dans req.file
+        req.file.filename = newFilename;
+        req.file.path = outputPath;
+        req.file.mimetype = 'image/webp';
 
-		next();
-	} catch (error) {
-		res.status(500).json({
-			message: "Une erreur s'est produite lors du traitement de l'image.",
-		});
-	}
+        next();
+    } catch (error) {
+        console.error("Erreur lors du traitement de l'image:", error);
+        res.status(500).json({
+            message: "Une erreur s'est produite lors du traitement de l'image.",
+            error: error.message
+        });
+    }
 };
+
 
 // Exportation de multer avec la configuration de stockage et du middleware de redimensionnement
 module.exports = {

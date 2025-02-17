@@ -24,35 +24,30 @@ exports.getOneBook = (req, res, next) => {
 };
 
 // Fonction pour ajouter un livre
-exports.createBook = (req, res, next) => {
-	// Parse l'objet book depuis le corps de la requête
-	const bookObject = JSON.parse(req.body.book);
-	// Supprime l'ID et l'userID envoyés par le front-end
-	delete bookObject._id;
-	delete bookObject._userID;
+exports.createBook = async (req, res, next) => {
+	try {
+		console.log('Données reçues:', req.body);
+		console.log('Fichier reçu:', req.file);
+		const bookObject = JSON.parse(req.body.book);
+		delete bookObject._id;
+		delete bookObject._userId;
 
-	// Crée une nouvelle instance de Book
-	const book = new Book({
-		//Création d'une copie du contenu de book
-		...bookObject,
-		// Définition de userID par l'ID de l'utilisateur authentifié extrait du token
-		userId: req.auth.userId,
-		// Construction de l'URL de l'image uploadée
-		imageUrl: `${req.protocol}://${req.get('host')}/images/${
-			req.file.filename
-		}`,
-		// Initialisation de la note moyenne à 0
-		averageRating: 0,
-		// Initialisation du tableau des notes comme vide
-		ratings: [],
-	});
-	// Sauvegarde le livre dans la base de données
-	book
-		.save()
-		// En cas de succès, renvoie un statut 201 avec un message
-		.then(() => res.status(201).json({ message: 'Livre enregistré !' }))
-		// En cas d'erreur, renvoie un statut 400 avec l'erreur
-		.catch((error) => res.status(400).json({ error }));
+		const book = new Book({
+			...bookObject,
+			userId: req.auth.userId,
+			averageRating: 0,
+			ratings: [],
+			imageUrl: req.file
+				? `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+				: null,
+		});
+ console.log('Livre à sauvegarder:', book);
+		await book.save();
+		res.status(201).json({ message: 'Livre enregistré !' });
+	} catch (error) {
+		console.error('Erreur lors de la création du livre:', error);
+		res.status(400).json({ error: error.message });
+	}
 };
 
 //Fonction pour modifier un livre existant
@@ -69,7 +64,7 @@ exports.updateBook = (req, res, next) => {
 				}`,
 		  }
 		: //Copie de toutes les propriétés du corps de la requête si pas de fichier uploadé
-		  { ...req.body };
+		  { ...JSON.parse(req.body.book) };
 	//Suppression de l'userId pour des raisons de sécurité
 	delete bookObject._userId;
 	//Recherche du livre et vérification de l'autorisation

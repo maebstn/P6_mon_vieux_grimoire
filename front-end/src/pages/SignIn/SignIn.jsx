@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React, { useState } from 'react';
 import axios from 'axios';
 import * as PropTypes from 'prop-types';
@@ -18,7 +19,11 @@ function SignIn({ setUser }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [notification, setNotification] = useState({ error: false, message: '' });
+  const [notification, setNotification] = useState({
+    error: false,
+    message: '',
+  });
+
   const signIn = async () => {
     try {
       setIsLoading(true);
@@ -30,18 +35,20 @@ function SignIn({ setUser }) {
           password,
         },
       });
+
       if (!response?.data?.token) {
         setNotification({ error: true, message: 'Une erreur est survenue' });
-        console.log('Something went wrong during signing in: ', response);
+        console.error('Something went wrong during signing in: ', response);
       } else {
         storeInLocalStorage(response.data.token, response.data.userId);
         setUser(response.data);
         navigate('/');
       }
     } catch (err) {
-      console.log(err);
-      setNotification({ error: true, message: err.message });
-      console.log('Some error occured during signing in: ', err);
+      console.error('Some error occurred during signing in: ', err);
+      // Vérifiez si err.response et err.response.data existent avant d'accéder à message
+      const message = err.response.data.message || 'Une erreur est survenue';
+      setNotification({ error: true, message });
     } finally {
       setIsLoading(false);
     }
@@ -58,27 +65,34 @@ function SignIn({ setUser }) {
           password,
         },
       });
+
       if (!response?.data) {
-        console.log('Something went wrong during signing up: ', response);
+        console.error('Something went wrong during signing up: ', response);
         return;
       }
-      setNotification({ error: false, message: 'Votre compte a bien été créé, vous pouvez vous connecter' });
+
+      setNotification({
+        error: false,
+        message: 'Votre compte a bien été créé, vous pouvez vous connecter',
+      });
     } catch (err) {
-      setNotification({ error: true, message: err.message });
-      console.log('Some error occured during signing up: ', err);
+      console.error('Some error occurred during signing up: ', err);
+      // Vérifiez si err.response et err.response.data existent avant d'accéder à message
+      const message = err.response.data.message || 'Une erreur est survenue';
+      setNotification({ error: true, message });
     } finally {
       setIsLoading(false);
     }
   };
+
   const errorClass = notification.error ? styles.Error : null;
+
   return (
     <div className={`${styles.SignIn} container`}>
       <Logo />
-      <div className={`${styles.Notification} ${errorClass}`}>
-        {notification.message.length > 0 && <p>{notification.message}</p>}
-      </div>
+      <div className={`${styles.Notification} ${errorClass}`}>{notification.message.length > 0 && <p>{notification.message}</p>}</div>
       <div className={styles.Form}>
-        <label htmlFor={email}>
+        <label htmlFor="email">
           <p>Adresse email</p>
           <input
             className=""
@@ -86,7 +100,9 @@ function SignIn({ setUser }) {
             name="email"
             id="email"
             value={email}
-            onChange={(e) => { setEmail(e.target.value); }}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
           />
         </label>
         <label htmlFor="password">
@@ -97,42 +113,22 @@ function SignIn({ setUser }) {
             name="password"
             id="password"
             value={password}
-            onChange={(e) => { setPassword(e.target.value); }}
+            onChange={(e) => {
+              setPassword(e.target.value);
+            }}
           />
         </label>
         <div className={styles.Submit}>
-          <button
-            type="submit"
-            className="
-            flex justify-center
-            p-2 rounded-md w-1/2 self-center
-            bg-gray-800  text-white hover:bg-gray-800"
-            onClick={signIn}
-          >
+          <button type="submit" className="flex justify-center p-2 rounded-md w-1/2 self-center bg-gray-800 text-white hover:bg-gray-800" onClick={signIn}>
             {isLoading ? <div className="" /> : null}
-            <span>
-              Se connecter
-            </span>
+            <span>Se connecter</span>
           </button>
           <span>OU</span>
-          <button
-            type="submit"
-            className="
-            flex justify-center
-            p-2 rounded-md w-1/2 self-center
-            bg-gray-800  text-white hover:bg-gray-800"
-            onClick={signUp}
-          >
-            {
-                isLoading
-                  ? <div className="mr-2 w-5 h-5 border-l-2 rounded-full animate-spin" /> : null
-              }
-            <span>
-              {'S\'inscrire'}
-            </span>
+          <button type="submit" className="flex justify-center p-2 rounded-md w-1/2 self-center bg-gray-800 text-white hover:bg-gray-800" onClick={signUp}>
+            {isLoading ? <div className="mr-2 w-5 h-5 border-l-2 rounded-full animate-spin" /> : null}
+            <span>S'inscrire</span>
           </button>
         </div>
-
       </div>
     </div>
   );
@@ -141,4 +137,5 @@ function SignIn({ setUser }) {
 SignIn.propTypes = {
   setUser: PropTypes.func.isRequired,
 };
+
 export default SignIn;

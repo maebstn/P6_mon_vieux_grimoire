@@ -16,15 +16,23 @@ function BookForm({ book, validate }) {
 
   const navigate = useNavigate();
   const {
-    register, watch, formState, handleSubmit, reset,
+    register,
+    watch,
+    formState,
+    handleSubmit,
+    reset, // Ajoutez une virgule ici
   } = useForm({
-    defaultValues: useMemo(() => ({
-      title: book?.title,
-      author: book?.author,
-      year: book?.year,
-      genre: book?.genre,
-    }), [book]),
+    defaultValues: useMemo(
+      () => ({
+        title: book?.title,
+        author: book?.author,
+        year: book?.year,
+        genre: book?.genre,
+      }),
+      [book]
+    ),
   });
+
   useEffect(() => {
     reset(book);
   }, [book]);
@@ -47,29 +55,39 @@ function BookForm({ book, validate }) {
     // When we create a new book
     if (!book) {
       if (!data.file[0]) {
+        // eslint-disable-next-line no-alert
         alert('Vous devez ajouter une image');
+        return;
       }
       if (!data.rating) {
         /* eslint-disable no-param-reassign */
         data.rating = 0;
         /* eslint-enable no-param-reassign */
       }
-      const newBook = await addBook(data);
-      if (!newBook.error) {
-        validate(true);
-      } else {
-        alert(newBook.message);
+      try {
+        const newBook = await addBook(data);
+        if (newBook.error) {
+          alert(newBook.message);
+        } else {
+          validate(true);
+        }
+      } catch (error) {
+        alert(error.message || "Une erreur est survenue lors de l'ajout du livre");
       }
     } else {
-      const updatedBook = await updateBook(data, data.id);
-      if (!updatedBook.error) {
-        navigate('/');
-      } else {
-        alert(updatedBook.message);
+      try {
+        const updatedBook = await updateBook(data, data.id);
+        if (updatedBook.error) {
+          alert(updatedBook.message);
+        } else {
+          navigate('/');
+        }
+      } catch (error) {
+        alert(error.message || 'Une erreur est survenue lors de la mise à jour du livre');
       }
     }
   };
-
+  
   const readOnlyStars = !!book;
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.Form}>
@@ -92,9 +110,7 @@ function BookForm({ book, validate }) {
       </label>
       <label htmlFor="rate">
         <p>Note</p>
-        <div className={styles.Stars}>
-          {generateStarsInputs(rating, register, readOnlyStars)}
-        </div>
+        <div className={styles.Stars}>{generateStarsInputs(rating, register, readOnlyStars)}</div>
       </label>
       <label htmlFor="file">
         <p>Visuel</p>
@@ -110,7 +126,6 @@ function BookForm({ book, validate }) {
               <p>Ajouter une image</p>
             </>
           )}
-
         </div>
         <input {...register('file')} type="file" id="file" />
       </label>
@@ -129,10 +144,12 @@ BookForm.propTypes = {
     year: PropTypes.number,
     imageUrl: PropTypes.string,
     genre: PropTypes.string,
-    ratings: PropTypes.arrayOf(PropTypes.shape({
-      userId: PropTypes.string,
-      grade: PropTypes.number,
-    })),
+    ratings: PropTypes.arrayOf(
+      PropTypes.shape({
+        userId: PropTypes.string,
+        grade: PropTypes.number,
+      })
+    ),
     averageRating: PropTypes.number,
   }),
   validate: PropTypes.func,
@@ -142,4 +159,5 @@ BookForm.defaultProps = {
   book: null,
   validate: null,
 };
+
 export default BookForm;
